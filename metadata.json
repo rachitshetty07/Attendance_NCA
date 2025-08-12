@@ -1,0 +1,5 @@
+{
+  "name": "Copy of Geo-Attendance Tracker",
+  "description": "An attendance application that allows users to clock in and out with geotagging. It provides a monthly summary of the number of days worked.",
+  "requestFramePermissions": []
+}

@@ -1,0 +1,50 @@
+export interface Employee {
+    id: number;
+    name: string;
+    email: string;
+    role: 'manager' | 'employee';
+}
+
+export const employees: Employee[] = [
+    { id: 41, name: "Rachith C.N.", email: "rachith@rcn-audit.com", role: 'manager' },
+    { id: 1, name: "Alice Johnson", email: "alice.j@example.com", role: 'manager' },
+    { id: 2, name: "Bob Williams", email: "bob.w@example.com", role: 'manager' },
+    { id: 3, name: "Charlie Brown", email: "charlie.b@example.com", role: 'manager' },
+    { id: 4, name: "Diana Miller", email: "diana.m@example.com", role: 'employee' },
+    { id: 5, name: "Ethan Davis", email: "ethan.d@example.com", role: 'employee' },
+    { id: 6, name: "Fiona Garcia", email: "fiona.g@example.com", role: 'employee' },
+    { id: 7, name: "George Rodriguez", email: "george.r@example.com", role: 'employee' },
+    { id: 8, name: "Hannah Wilson", email: "hannah.w@example.com", role: 'employee' },
+    { id: 9, name: "Ian Martinez", email: "ian.m@example.com", role: 'employee' },
+    { id: 10, name: "Jane Anderson", email: "jane.a@example.com", role: 'employee' },
+    { id: 11, name: "Kevin Thomas", email: "kevin.t@example.com", role: 'employee' },
+    { id: 12, name: "Laura Taylor", email: "laura.t@example.com", role: 'employee' },
+    { id: 13, name: "Mason Moore", email: "mason.m@example.com", role: 'employee' },
+    { id: 14, name: "Nora Jackson", email: "nora.j@example.com", role: 'employee' },
+    { id: 15, name: "Oscar White", email: "oscar.w@example.com", role: 'employee' },
+    { id: 16, name: "Penny Harris", email: "penny.h@example.com", role: 'employee' },
+    { id: 17, name: "Quincy Martin", email: "quincy.m@example.com", role: 'employee' },
+    { id: 18, name: "Rachel Thompson", email: "rachel.t@example.com", role: 'employee' },
+    { id: 19, name: "Steve Garcia", email: "steve.g@example.com", role: 'employee' },
+    { id: 20, name: "Tina Lee", email: "tina.l@example.com", role: 'employee' },
+    { id: 21, name: "Uma Perez", email: "uma.p@example.com", role: 'employee' },
+    { id: 22, name: "Victor Hall", email: "victor.h@example.com", role: 'employee' },
+    { id: 23, name: "Wendy Young", email: "wendy.y@example.com", role: 'employee' },
+    { id: 24, name: "Xavier Allen", email: "xavier.a@example.com", role: 'employee' },
+    { id: 25, name: "Yara King", email: "yara.k@example.com", role: 'employee' },
+    { id: 26, name: "Zane Wright", email: "zane.w@example.com", role: 'employee' },
+    { id: 27, name: "Amy Scott", email: "amy.s@example.com", role: 'employee' },
+    { id: 28, name: "Ben Green", email: "ben.g@example.com", role: 'employee' },
+    { id: 29, name: "Clara Adams", email: "clara.a@example.com", role: 'employee' },
+    { id: 30, name: "David Baker", email: "david.b@example.com", role: 'employee' },
+    { id: 31, name: "Eva Nelson", email: "eva.n@example.com", role: 'employee' },
+    { id: 32, name: "Frank Carter", email: "frank.c@example.com", role: 'employee' },
+    { id: 33, name: "Grace Mitchell", email: "grace.m@example.com", role: 'employee' },
+    { id: 34, name: "Henry Roberts", email: "henry.r@example.com", role: 'employee' },
+    { id: 35, name: "Ivy Turner", email: "ivy.t@example.com", role: 'employee' },
+    { id: 36, name: "Jack Phillips", email: "jack.p@example.com", role: 'employee' },
+    { id: 37, name: "Kate Campbell", email: "kate.c@example.com", role: 'employee' },
+    { id: 38, name: "Leo Parker", email: "leo.p@example.com", role: 'employee' },
+    { id: 39, name: "Mia Evans", email: "mia.e@example.com", role: 'employee' },
+    { id: 40, name: "Noah Edwards", email: "noah.e@example.com", role: 'employee' },
+];
