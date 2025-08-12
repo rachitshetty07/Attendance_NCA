@@ -7,7 +7,6 @@ import { AttendanceLog } from './components/AttendanceLog';
 import { Login } from './components/Login';
 import { ManagerDashboard } from './components/ManagerDashboard';
 import { LogoutIcon, UserIcon } from './components/icons';
-import { GoogleGenAI, Type } from "@google/genai";
 import { employees, Employee } from './data/employees';
 import { SharedReportView } from './components/SharedReportView';
 import { AISmartSearch } from './components/AISmartSearch';
@@ -21,8 +20,6 @@ const App: React.FC = () => {
   const [locationError, setLocationError] = useState<string | null>(null);
   const [aiResult, setAiResult] = useState<string>('');
   const [isAiLoading, setIsAiLoading] = useState<boolean>(false);
-
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
   // Routing effect
   useEffect(() => {
@@ -77,23 +74,25 @@ const App: React.FC = () => {
 
   const getPlaceNameFromCoords = async (location: GeoLocation): Promise<string | null> => {
     try {
-        const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: `Provide a short place name for latitude: ${location.latitude}, longitude: ${location.longitude}. Include city and country. For example: 'San Francisco, USA'.`,
-            config: {
-                responseMimeType: "application/json",
-                responseSchema: {
-                    type: Type.OBJECT,
-                    properties: {
-                        place: { type: Type.STRING, description: "Short place name." }
-                    }
-                }
-            }
-        });
-        const json = JSON.parse(response.text);
-        return json.place || "Unknown Location";
+      const response = await fetch('/api/proxy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'placename',
+          payload: { latitude: location.latitude, longitude: location.longitude }
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `API call failed with status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const json = JSON.parse(data.text);
+      return json.place || "Unknown Location";
     } catch (error) {
-        console.error("Gemini API call failed", error);
+        console.error("API proxy call failed for placename", error);
         return "Could not fetch place name";
     }
   };
@@ -172,25 +171,23 @@ const App: React.FC = () => {
         records: simplifiedRecords,
     };
 
-    const systemInstruction = `You are a helpful HR assistant for 'Raghavan Chaudhuri and Narayanan'. Your task is to analyze the provided JSON data of employee attendance records to answer questions.
-- The 'employees' array lists all employees.
-- The 'records' array contains all clock-in/out events.
-- 'status: pending' means a late clock-in requires manager approval.
-- Today's date is ${new Date().toDateString()}.
-- Base your answers strictly on the data provided.
-- Be concise and clear. Format your answer for readability.
-- If the data is insufficient to answer, say so.`;
-
     try {
-        const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: `Question: "${query}"\n\nJSON Data:\n${JSON.stringify(contextData, null, 2)}`,
-            config: {
-                systemInstruction: systemInstruction,
-                temperature: 0.2,
-            }
+        const response = await fetch('/api/proxy', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'search',
+            payload: { query, contextData }
+          })
         });
-        setAiResult(response.text);
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'AI search failed');
+        }
+
+        const data = await response.json();
+        setAiResult(data.text);
     } catch (error) {
         console.error("AI search failed", error);
         setAiResult("Sorry, I couldn't process that request. Please try again.");
