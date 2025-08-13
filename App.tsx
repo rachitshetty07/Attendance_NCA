@@ -1,6 +1,8 @@
 
+
+
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { AttendanceRecord, GeoLocation } from './types';
+import { AttendanceRecord, GeoLocation, LeaveRequest, LeaveStatus } from './types';
 import { ClockControl } from './components/ClockControl';
 import { MonthlySummary } from './components/MonthlySummary';
 import { AttendanceLog } from './components/AttendanceLog';
@@ -10,11 +12,13 @@ import { LogoutIcon, UserIcon } from './components/icons';
 import { employees, Employee } from './data/employees';
 import { SharedReportView } from './components/SharedReportView';
 import { AISmartSearch } from './components/AISmartSearch';
+import { LeaveManagement } from './components/LeaveManagement';
 
 const App: React.FC = () => {
   const [route, setRoute] = useState(window.location.hash);
   const [currentUser, setCurrentUser] = useState<Employee | null>(null);
   const [allRecords, setAllRecords] = useState<AttendanceRecord[]>([]);
+  const [allLeaveRequests, setAllLeaveRequests] = useState<LeaveRequest[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [currentLocation, setCurrentLocation] = useState<GeoLocation | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
@@ -48,23 +52,34 @@ const App: React.FC = () => {
   useEffect(() => {
     try {
       const storedRecords = localStorage.getItem('allAttendanceRecords');
-      if (storedRecords) {
-        setAllRecords(JSON.parse(storedRecords));
-      }
+      if (storedRecords) setAllRecords(JSON.parse(storedRecords));
+
+      const storedLeaves = localStorage.getItem('allLeaveRequests');
+      if (storedLeaves) setAllLeaveRequests(JSON.parse(storedLeaves));
+
     } catch (error) {
       console.error("Failed to parse records from localStorage", error);
     }
   }, []);
 
-  // Data saving effect
+  // Data saving effects
   useEffect(() => {
     localStorage.setItem('allAttendanceRecords', JSON.stringify(allRecords));
   }, [allRecords]);
+  
+  useEffect(() => {
+    localStorage.setItem('allLeaveRequests', JSON.stringify(allLeaveRequests));
+  }, [allLeaveRequests]);
   
   const currentUserRecords = useMemo(() => {
     if (!currentUser) return [];
     return allRecords.filter(r => r.userEmail === currentUser.email);
   }, [allRecords, currentUser]);
+
+  const currentUserLeaveRequests = useMemo(() => {
+    if (!currentUser) return [];
+    return allLeaveRequests.filter(r => r.userEmail === currentUser.email);
+  }, [allLeaveRequests, currentUser]);
 
   const isClockedIn = useMemo(() => {
     if (currentUserRecords.length === 0) return false;
@@ -90,9 +105,9 @@ const App: React.FC = () => {
 
       const data = await response.json();
       const json = JSON.parse(data.text);
-      return json.place || "Unknown Location";
+      return json.address || "Unknown Location";
     } catch (error) {
-        console.error("API proxy call failed for placename", error);
+        console.error("API proxy call for placename failed", error);
         return "Could not fetch place name";
     }
   };
@@ -153,6 +168,22 @@ const App: React.FC = () => {
     );
   };
 
+  const handleAddLeaveRequest = (leaveRequest: Omit<LeaveRequest, 'id' | 'userEmail' | 'status' | 'requestTimestamp'>) => {
+    if (!currentUser) return;
+    const newLeaveRequest: LeaveRequest = {
+        ...leaveRequest,
+        id: Date.now(),
+        userEmail: currentUser.email,
+        requestTimestamp: Date.now(),
+        status: leaveRequest.leaveType === 'sick' ? 'approved' : 'pending',
+    };
+    setAllLeaveRequests(prev => [...prev, newLeaveRequest]);
+  }
+
+  const handleUpdateLeaveStatus = (requestId: number, status: LeaveStatus) => {
+    setAllLeaveRequests(prev => prev.map(req => req.id === requestId ? {...req, status} : req));
+  }
+
   const handleAiSearch = async (query: string) => {
     if (!query) return;
 
@@ -167,7 +198,7 @@ const App: React.FC = () => {
     }));
 
     const contextData = {
-        employees: employees.map(({name, email, role}) => ({name, email, role})),
+        articles: employees.map(({name, email, role}) => ({name, email, role})),
         records: simplifiedRecords,
     };
 
@@ -223,10 +254,9 @@ const App: React.FC = () => {
         <header className="flex flex-wrap justify-between items-center mb-10 gap-4">
           <div>
             <h1 className="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-blue-600">
-              Geo-Attendance
+              Raghavan Chaudhuri and Narayanan
             </h1>
-            <p className="text-slate-600 font-semibold mt-1">Raghavan Chaudhuri and Narayanan</p>
-             <p className="text-slate-500 mt-2 flex items-center text-sm">
+             <p className="text-slate-500 mt-2 flex items-center text-sm capitalize">
                 <UserIcon className="w-4 h-4 mr-2" /> {currentUser.email} ({currentUser.role})
             </p>
           </div>
@@ -246,6 +276,10 @@ const App: React.FC = () => {
               location={currentLocation}
               locationError={locationError}
             />
+             <LeaveManagement 
+                leaveRequests={currentUserLeaveRequests}
+                onSubmitRequest={handleAddLeaveRequest}
+            />
             {currentUser.role === 'manager' && (
                 <>
                     <AISmartSearch 
@@ -254,15 +288,21 @@ const App: React.FC = () => {
                         isLoading={isAiLoading}
                     />
                     <ManagerDashboard 
-                        records={allRecords}
-                        onApprove={handleApproveAttendance}
+                        attendanceRecords={allRecords}
+                        leaveRequests={allLeaveRequests}
+                        onApproveAttendance={handleApproveAttendance}
+                        onUpdateLeaveStatus={handleUpdateLeaveStatus}
                     />
                 </>
             )}
             <AttendanceLog records={currentUserRecords} />
           </div>
           <div className="lg:col-span-3">
-            <MonthlySummary records={currentUserRecords} userEmail={currentUser.email} />
+            <MonthlySummary 
+                records={currentUserRecords} 
+                leaveRequests={currentUserLeaveRequests}
+                userEmail={currentUser.email} 
+            />
           </div>
         </main>
       </div>

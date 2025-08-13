@@ -98,9 +98,8 @@ export const SharedReportView: React.FC = () => {
              <div className="w-full max-w-4xl">
                 <div className="text-center mb-8">
                     <h1 className="text-4xl sm:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-blue-600">
-                        Geo-Attendance Report
+                        Raghavan Chaudhuri and Narayanan
                     </h1>
-                    <p className="text-slate-600 font-semibold mt-2 text-lg">Raghavan Chaudhuri and Narayanan</p>
                 </div>
                 <div className="bg-white shadow-xl rounded-2xl p-6 sm:p-8 border border-slate-200">
                     {error && (
@@ -114,7 +113,7 @@ export const SharedReportView: React.FC = () => {
                         <>
                             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 pb-4 border-b border-slate-200">
                                 <div>
-                                    <h2 className="text-xl font-bold text-slate-800 flex items-center gap-3"><UserIcon className="w-6 h-6 text-blue-500"/>{reportData.user.name}</h2>
+                                    <h2 className="text-xl font-bold text-slate-800 flex items-center gap-3"><UserIcon className="w-6 h-6 text-blue-500"/>{reportData.user.name}'s Report</h2>
                                     <p className="text-slate-500">{reportData.user.email}</p>
                                 </div>
                                 <a href="/" className="mt-4 sm:mt-0 inline-block text-sm font-semibold text-blue-600 hover:text-blue-800 bg-blue-100 hover:bg-blue-200 px-3 py-2 rounded-lg">

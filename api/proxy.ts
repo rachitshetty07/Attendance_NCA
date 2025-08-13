@@ -1,4 +1,5 @@
 
+
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 interface RequestBody {
@@ -34,13 +35,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 }
                 geminiResponse = await ai.models.generateContent({
                     model: "gemini-2.5-flash",
-                    contents: `Provide a short place name for latitude: ${latitude}, longitude: ${longitude}. Include city and country. For example: 'San Francisco, USA'.`,
+                    contents: `Provide a street address for the following coordinates: latitude ${latitude}, longitude ${longitude}. The address should include street name, number, city, and country. For example: '1600 Amphitheatre Parkway, Mountain View, USA'. If a precise street address is not available, provide the most specific location information you can, like a neighborhood or landmark.`,
                     config: {
                         responseMimeType: "application/json",
                         responseSchema: {
                             type: Type.OBJECT,
                             properties: {
-                                place: { type: Type.STRING, description: "Short place name." }
+                                address: { type: Type.STRING, description: "Full street address including street, city, and country." }
                             }
                         }
                     }
@@ -52,8 +53,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 if (!query || !contextData) {
                     return res.status(400).json({ error: 'Query and contextData are required for search.' });
                 }
-                const systemInstruction = `You are a helpful HR assistant for 'Raghavan Chaudhuri and Narayanan'. Your task is to analyze the provided JSON data of employee attendance records to answer questions.
-- The 'employees' array lists all employees.
+                const systemInstruction = `You are a helpful HR assistant for 'Raghavan Chaudhuri and Narayanan'. Your task is to analyze the provided JSON data of article attendance records to answer questions.
+- The 'articles' array lists all articles.
 - The 'records' array contains all clock-in/out events.
 - 'status: pending' means a late clock-in requires manager approval.
 - Today's date is ${new Date().toDateString()}.

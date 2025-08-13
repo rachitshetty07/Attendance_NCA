@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { employees } from '../data/employees';
 import { UserIcon } from './icons';
@@ -26,16 +27,15 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
             <h1 className="text-4xl sm:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-blue-600">
-                Geo-Attendance
+                Raghavan Chaudhuri and Narayanan
             </h1>
-            <p className="text-slate-600 font-semibold mt-2 text-lg">Raghavan Chaudhuri and Narayanan</p>
             <p className="text-slate-500 mt-2">Please sign in to continue</p>
         </div>
         <div className="bg-white shadow-xl rounded-2xl p-8 border border-slate-200">
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
               <label htmlFor="email" className="block text-sm font-bold text-slate-700 mb-2">
-                Employee Email
+                Article Email
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -49,7 +49,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
                         setEmail(e.target.value);
                         setError('');
                     }}
-                    placeholder="your.email@rcn-audit.com"
+                    placeholder="Enter your email address"
                     required
                     className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
