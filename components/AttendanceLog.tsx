@@ -1,12 +1,14 @@
+
 import React from 'react';
 import { AttendanceRecord } from '../types';
 import { ArrowLeftIcon, ArrowRightIcon, LocationMarkerIcon } from './icons';
 
 interface AttendanceLogProps {
   records: AttendanceRecord[];
+  title: string;
 }
 
-export const AttendanceLog: React.FC<AttendanceLogProps> = ({ records }) => {
+export const AttendanceLog: React.FC<AttendanceLogProps> = ({ records, title }) => {
     const sortedRecords = [...records].sort((a, b) => b.timestamp - a.timestamp);
 
   const formatDate = (timestamp: number) => {
@@ -21,7 +23,7 @@ export const AttendanceLog: React.FC<AttendanceLogProps> = ({ records }) => {
 
   return (
     <div className="bg-white shadow-lg rounded-xl p-6 border border-slate-200">
-      <h2 className="text-xl font-bold text-slate-800 mb-4">My History</h2>
+      <h2 className="text-xl font-bold text-slate-800 mb-4">{title}</h2>
       <div className="max-h-[30rem] overflow-y-auto pr-2">
         {sortedRecords.length === 0 ? (
           <p className="text-slate-500 text-center py-8">No attendance records yet.</p>

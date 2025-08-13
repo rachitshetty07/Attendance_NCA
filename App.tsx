@@ -1,6 +1,4 @@
 
-
-
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { AttendanceRecord, GeoLocation, LeaveRequest, LeaveStatus } from './types';
 import { ClockControl } from './components/ClockControl';
@@ -13,10 +11,12 @@ import { employees, Employee } from './data/employees';
 import { SharedReportView } from './components/SharedReportView';
 import { AISmartSearch } from './components/AISmartSearch';
 import { LeaveManagement } from './components/LeaveManagement';
+import { ArticleSelector } from './components/ArticleSelector';
 
 const App: React.FC = () => {
   const [route, setRoute] = useState(window.location.hash);
   const [currentUser, setCurrentUser] = useState<Employee | null>(null);
+  const [viewingUserEmail, setViewingUserEmail] = useState<string | null>(null);
   const [allRecords, setAllRecords] = useState<AttendanceRecord[]>([]);
   const [allLeaveRequests, setAllLeaveRequests] = useState<LeaveRequest[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -44,6 +44,7 @@ const App: React.FC = () => {
       const user = employees.find(e => e.email.toLowerCase() === loggedInUserEmail.toLowerCase());
       if (user) {
         setCurrentUser(user);
+        setViewingUserEmail(user.email);
       }
     }
   }, []);
@@ -71,6 +72,7 @@ const App: React.FC = () => {
     localStorage.setItem('allLeaveRequests', JSON.stringify(allLeaveRequests));
   }, [allLeaveRequests]);
   
+  // Memoized values for the currently LOGGED IN user (for actions)
   const currentUserRecords = useMemo(() => {
     if (!currentUser) return [];
     return allRecords.filter(r => r.userEmail === currentUser.email);
@@ -86,6 +88,23 @@ const App: React.FC = () => {
     const lastRecord = [...currentUserRecords].sort((a,b) => b.timestamp - a.timestamp)[0];
     return lastRecord.type === 'in';
   }, [currentUserRecords]);
+  
+  // Memoized values for the user whose report is being VIEWED (for display)
+  const viewingUser = useMemo(() => {
+    if (!viewingUserEmail) return null;
+    return employees.find(e => e.email === viewingUserEmail);
+  }, [viewingUserEmail]);
+
+  const viewingUserRecords = useMemo(() => {
+    if (!viewingUserEmail) return [];
+    return allRecords.filter(r => r.userEmail === viewingUserEmail);
+  }, [allRecords, viewingUserEmail]);
+
+  const viewingUserLeaveRequests = useMemo(() => {
+    if (!viewingUserEmail) return [];
+    return allLeaveRequests.filter(r => r.userEmail === viewingUserEmail);
+  }, [allLeaveRequests, viewingUserEmail]);
+
 
   const getPlaceNameFromCoords = async (location: GeoLocation): Promise<string | null> => {
     try {
@@ -231,13 +250,19 @@ const App: React.FC = () => {
     const user = employees.find(e => e.email.toLowerCase() === email.toLowerCase());
     if (user) {
         setCurrentUser(user);
+        setViewingUserEmail(user.email);
         localStorage.setItem('currentUserEmail', user.email);
     }
   };
   
   const handleLogout = () => {
     setCurrentUser(null);
+    setViewingUserEmail(null);
     localStorage.removeItem('currentUserEmail');
+  };
+
+  const handleViewUserChange = (email: string) => {
+    setViewingUserEmail(email);
   };
 
   if (route.startsWith('#/share/')) {
@@ -295,13 +320,24 @@ const App: React.FC = () => {
                     />
                 </>
             )}
-            <AttendanceLog records={currentUserRecords} />
           </div>
-          <div className="lg:col-span-3">
+          <div className="lg:col-span-3 space-y-8">
+            {currentUser.role === 'manager' && viewingUserEmail && (
+              <ArticleSelector 
+                articles={employees}
+                managerEmail={currentUser.email}
+                selectedEmail={viewingUserEmail}
+                onSelectUser={handleViewUserChange}
+              />
+            )}
             <MonthlySummary 
-                records={currentUserRecords} 
-                leaveRequests={currentUserLeaveRequests}
-                userEmail={currentUser.email} 
+                records={viewingUserRecords} 
+                leaveRequests={viewingUserLeaveRequests}
+                userEmail={viewingUser?.email || ''} 
+            />
+             <AttendanceLog 
+                records={viewingUserRecords}
+                title={currentUser.email === viewingUserEmail ? 'My History' : `${viewingUser?.name || 'Article'}'s History`}
             />
           </div>
         </main>
